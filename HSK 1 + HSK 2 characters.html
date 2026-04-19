@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>HSK 1 & 2 · Chinese Character Mastery Game | Pinyin + English Review</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f7f3e9 0%, #fff4e4 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(255, 255, 245, 0.9);
+            border-radius: 72px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(2px);
+            overflow: hidden;
+            padding: 20px 24px 36px;
+            transition: all 0.2s ease;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.9rem;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            background: linear-gradient(135deg, #c0392b, #e67e22);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #b45f2b;
+            font-weight: 500;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ffe0b5;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 6px;
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            background: #fff0e0;
+            padding: 12px 20px;
+            border-radius: 100px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #8b3c1c;
+            box-shadow: inset 0 1px 2px #0001, 0 4px 8px #0001;
+        }
+
+        .level-badge {
+            background: #d35400;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+        }
+
+        .score {
+            background: #f39c12;
+            padding: 4px 14px;
+            border-radius: 40px;
+            color: #2c3e2f;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 48px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            padding: 45px 20px;
+            margin-bottom: 30px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 2px solid #ffddb0;
+        }
+
+        .flashcard:active {
+            transform: scale(0.98);
+        }
+
+        .character {
+            font-size: 5.8rem;
+            font-weight: 500;
+            font-family: 'Noto Sans CJK SC', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            letter-spacing: 8px;
+            color: #3e2720;
+            margin-bottom: 20px;
+            word-break: break-word;
+        }
+
+        .meaning {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #b45f2b;
+            background: #fff3e6;
+            display: inline-block;
+            padding: 8px 28px;
+            border-radius: 60px;
+            margin-top: 12px;
+        }
+
+        .pinyin {
+            font-size: 1.4rem;
+            color: #c97e3a;
+            background: #fef5e8;
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .hint-area {
+            margin: 16px auto 8px;
+            font-size: 0.9rem;
+            color: #b87c4a;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+            margin: 20px 0 18px;
+        }
+
+        .btn {
+            border: none;
+            background: #f5e2ce;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            color: #5c3a21;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: #e67e22;
+            color: white;
+            box-shadow: 0 4px 8px rgba(230,126,34,0.3);
+        }
+
+        .btn-primary:hover {
+            background: #d35400;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #fad7a0;
+        }
+
+        .btn-secondary:hover {
+            background: #f5bc70;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            background: #faeedf;
+            padding: 8px;
+            border-radius: 50px;
+            color: #a0512a;
+        }
+
+        /* enhanced feedback bar: shows pinyin + english together for "I know", only English for "Need review" */
+        .feedback-bar {
+            margin-top: 18px;
+            text-align: center;
+            background: #2c3e2f;
+            color: #ffecb3;
+            padding: 14px 16px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 6px solid #f39c12;
+            border-right: 6px solid #f39c12;
+            line-height: 1.4;
+        }
+
+        .feedback-bar span.pinyin-highlight {
+            color: #f9e45b;
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: #1e2a21;
+            padding: 4px 12px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 0 6px;
+        }
+
+        .feedback-bar span.eng-highlight {
+            color: #ffd966;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: #2a3b2e;
+            padding: 4px 12px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 0 6px;
+        }
+
+        footer {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 24px;
+            color: #bc8a5f;
+        }
+
+        @media (max-width: 550px) {
+            .game-container {
+                padding: 16px;
+            }
+            .character {
+                font-size: 3.8rem;
+            }
+            .meaning {
+                font-size: 1.2rem;
+            }
+            .btn {
+                padding: 8px 16px;
+            }
+            .feedback-bar {
+                font-size: 0.9rem;
+            }
+            .feedback-bar span.pinyin-highlight, .feedback-bar span.eng-highlight {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>📖 汉字英雄 · Hanzi Hero</h1>
+    <div style="text-align: center;"><span class="sub">HSK 1 + HSK 2 | Pinyin + English Review</span></div>
+
+    <div class="info-panel">
+        <span>🎴 Smart flashcards</span>
+        <span class="level-badge" id="levelDisplay">HSK 1+2</span>
+        <span class="score" id="scoreDisplay">📊 0 / 0</span>
+    </div>
+
+    <div class="flashcard" id="flashcard">
+        <div class="character" id="characterDisplay">?</div>
+        <div id="detailsArea">
+            <div class="hint-area">✨ click card to reveal meaning & pinyin</div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn btn-primary" id="nextBtn">➡️ Next character</button>
+        <button class="btn btn-secondary" id="knownBtn">✅ I know this</button>
+        <button class="btn btn-secondary" id="unknownBtn">🔄 Need review</button>
+        <button class="btn" id="shuffleBtn">🎲 Shuffle deck</button>
+    </div>
+
+    <!-- Enhanced feedback bar: shows pinyin + English together for "I know", only English for "Need review" -->
+    <div class="feedback-bar" id="dynamicFeedbackBar">
+        💡 Click "I know this" → see pinyin + English meaning.<br>
+        🔄 Click "Need review" → English definition only.
+    </div>
+
+    <div class="progress-text" id="progressMessage">
+        💡 Tap card → see full details. Mark 'I know' to track progress!
+    </div>
+    <footer>📚 Based on HSK 1 & 2 official vocabulary. Master characters, pinyin, and meanings.</footer>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // HSK 1 + HSK 2 Chinese characters DATABASE (pinyin + meaning)
+    // --------------------------------------------------------------
+    const hskDatabase = [
+        { char: "我", pinyin: "wǒ", meaning: "I, me" },
+        { char: "你", pinyin: "nǐ", meaning: "you" },
+        { char: "他", pinyin: "tā", meaning: "he, him" },
+        { char: "她", pinyin: "tā", meaning: "she, her" },
+        { char: "我们", pinyin: "wǒ men", meaning: "we, us" },
+        { char: "这", pinyin: "zhè", meaning: "this" },
+        { char: "那", pinyin: "nà", meaning: "that" },
+        { char: "人", pinyin: "rén", meaning: "person" },
+        { char: "好", pinyin: "hǎo", meaning: "good" },
+        { char: "不", pinyin: "bù", meaning: "no, not" },
+        { char: "是", pinyin: "shì", meaning: "to be" },
+        { char: "有", pinyin: "yǒu", meaning: "to have" },
+        { char: "去", pinyin: "qù", meaning: "to go" },
+        { char: "来", pinyin: "lái", meaning: "to come" },
+        { char: "大", pinyin: "dà", meaning: "big" },
+        { char: "小", pinyin: "xiǎo", meaning: "small" },
+        { char: "多", pinyin: "duō", meaning: "many, much" },
+        { char: "少", pinyin: "shǎo", meaning: "few, little" },
+        { char: "吃", pinyin: "chī", meaning: "to eat" },
+        { char: "喝", pinyin: "hē", meaning: "to drink" },
+        { char: "水", pinyin: "shuǐ", meaning: "water" },
+        { char: "饭", pinyin: "fàn", meaning: "meal, rice" },
+        { char: "茶", pinyin: "chá", meaning: "tea" },
+        { char: "咖啡", pinyin: "kā fēi", meaning: "coffee" },
+        { char: "家", pinyin: "jiā", meaning: "home, family" },
+        { char: "学校", pinyin: "xué xiào", meaning: "school" },
+        { char: "老师", pinyin: "lǎo shī", meaning: "teacher" },
+        { char: "学生", pinyin: "xué sheng", meaning: "student" },
+        { char: "朋友", pinyin: "péng you", meaning: "friend" },
+        { char: "中国", pinyin: "Zhōng guó", meaning: "China" },
+        { char: "北京", pinyin: "Běi jīng", meaning: "Beijing" },
+        { char: "今天", pinyin: "jīn tiān", meaning: "today" },
+        { char: "明天", pinyin: "míng tiān", meaning: "tomorrow" },
+        { char: "昨天", pinyin: "zuó tiān", meaning: "yesterday" },
+        { char: "现在", pinyin: "xiàn zài", meaning: "now" },
+        { char: "点", pinyin: "diǎn", meaning: "o'clock, point" },
+        { char: "岁", pinyin: "suì", meaning: "years old" },
+        { char: "名字", pinyin: "míng zi", meaning: "name" },
+        { char: "什么", pinyin: "shén me", meaning: "what" },
+        { char: "哪儿", pinyin: "nǎ er", meaning: "where" },
+        { char: "比", pinyin: "bǐ", meaning: "to compare" },
+        { char: "别", pinyin: "bié", meaning: "don't; other" },
+        { char: "才", pinyin: "cái", meaning: "just now; talent" },
+        { char: "从", pinyin: "cóng", meaning: "from" },
+        { char: "错", pinyin: "cuò", meaning: "wrong" },
+        { char: "但", pinyin: "dàn", meaning: "but" },
+        { char: "到", pinyin: "dào", meaning: "to arrive" },
+        { char: "得", pinyin: "de", meaning: "particle (degree)" },
+        { char: "第", pinyin: "dì", meaning: "prefix for numbers" },
+        { char: "对", pinyin: "duì", meaning: "correct; towards" },
+        { char: "放", pinyin: "fàng", meaning: "to put" },
+        { char: "高", pinyin: "gāo", meaning: "tall, high" },
+        { char: "跟", pinyin: "gēn", meaning: "with, and" },
+        { char: "公共汽车", pinyin: "gōng gòng qì chē", meaning: "bus" },
+        { char: "贵", pinyin: "guì", meaning: "expensive" },
+        { char: "过", pinyin: "guò", meaning: "to pass; past experience" },
+        { char: "还", pinyin: "hái", meaning: "still, also" },
+        { char: "还是", pinyin: "hái shì", meaning: "or; still" },
+        { char: "会", pinyin: "huì", meaning: "can, able" },
+        { char: "机场", pinyin: "jī chǎng", meaning: "airport" },
+        { char: "件", pinyin: "jiàn", meaning: "classifier for clothes/events" },
+        { char: "教", pinyin: "jiāo", meaning: "to teach" },
+        { char: "觉得", pinyin: "jué de", meaning: "to feel, think" },
+        { char: "快", pinyin: "kuài", meaning: "fast, quick" },
+        { char: "离", pinyin: "lí", meaning: "from (distance)" },
+        { char: "里", pinyin: "lǐ", meaning: "inside" },
+        { char: "脸", pinyin: "liǎn", meaning: "face" },
+        { char: "每", pinyin: "měi", meaning: "every" },
+        { char: "拿", pinyin: "ná", meaning: "to take, hold" },
+        { char: "难", pinyin: "nán", meaning: "difficult" },
+        { char: "能", pinyin: "néng", meaning: "can, be able" },
+        { char: "您", pinyin: "nín", meaning: "you (polite)" },
+        { char: "漂亮", pinyin: "piào liang", meaning: "beautiful" },
+        { char: "起床", pinyin: "qǐ chuáng", meaning: "get up" },
+        { char: "让", pinyin: "ràng", meaning: "to let, allow" },
+        { char: "日", pinyin: "rì", meaning: "sun, day" },
+        { char: "上班", pinyin: "shàng bān", meaning: "go to work" },
+        { char: "身体", pinyin: "shēn tǐ", meaning: "body, health" },
+        { char: "生病", pinyin: "shēng bìng", meaning: "get sick" },
+        { char: "时间", pinyin: "shí jiān", meaning: "time" },
+        { char: "事情", pinyin: "shì qing", meaning: "thing, matter" },
+        { char: "舒服", pinyin: "shū fu", meaning: "comfortable" },
+        { char: "它", pinyin: "tā", meaning: "it" },
+        { char: "天气", pinyin: "tiān qì", meaning: "weather" },
+        { char: "听", pinyin: "tīng", meaning: "to listen" },
+        { char: "完", pinyin: "wán", meaning: "to finish" },
+        { char: "玩", pinyin: "wán", meaning: "to play" },
+        { char: "为什么", pinyin: "wèi shén me", meaning: "why" },
+        { char: "问", pinyin: "wèn", meaning: "to ask" },
+        { char: "洗澡", pinyin: "xǐ zǎo", meaning: "take a shower" },
+        { char: "下", pinyin: "xià", meaning: "down, below" },
+        { char: "休息", pinyin: "xiū xi", meaning: "to rest" },
+        { char: "雪", pinyin: "xuě", meaning: "snow" },
+        { char: "颜色", pinyin: "yán sè", meaning: "color" },
+        { char: "眼睛", pinyin: "yǎn jīng", meaning: "eye" },
+        { char: "样", pinyin: "yàng", meaning: "kind, type" },
+        { char: "药", pinyin: "yào", meaning: "medicine" },
+        { char: "也", pinyin: "yě", meaning: "also" },
+        { char: "一", pinyin: "yī", meaning: "one" },
+        { char: "医院", pinyin: "yī yuàn", meaning: "hospital" },
+        { char: "已经", pinyin: "yǐ jīng", meaning: "already" },
+        { char: "意思", pinyin: "yì si", meaning: "meaning" },
+        { char: "阴", pinyin: "yīn", meaning: "cloudy (weather)" },
+        { char: "用", pinyin: "yòng", meaning: "to use" },
+        { char: "再", pinyin: "zài", meaning: "again, then" },
+        { char: "站", pinyin: "zhàn", meaning: "station; to stand" },
+        { char: "找", pinyin: "zhǎo", meaning: "to look for" },
+        { char: "着", pinyin: "zhe", meaning: "continuous aspect" },
+        { char: "真", pinyin: "zhēn", meaning: "really, true" },
+        { char: "正在", pinyin: "zhèng zài", meaning: "in progress" },
+        { char: "知道", pinyin: "zhī dào", meaning: "to know" },
+        { char: "只有", pinyin: "zhǐ yǒu", meaning: "only have" },
+        { char: "自行车", pinyin: "zì xíng chē", meaning: "bicycle" },
+        { char: "走", pinyin: "zǒu", meaning: "to walk" },
+        { char: "最", pinyin: "zuì", meaning: "most" },
+        { char: "左边", pinyin: "zuǒ bian", meaning: "left side" }
+    ];
+
+    let activeDeck = [...hskDatabase];
+    let currentIndex = 0;
+    let revealed = false;
+    let knownSet = new Set();
+    let totalCards = activeDeck.length;
+
+    // DOM elements
+    const characterDisplay = document.getElementById("characterDisplay");
+    const detailsArea = document.getElementById("detailsArea");
+    const flashcardDiv = document.getElementById("flashcard");
+    const nextBtn = document.getElementById("nextBtn");
+    const knownBtn = document.getElementById("knownBtn");
+    const unknownBtn = document.getElementById("unknownBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const progressMessage = document.getElementById("progressMessage");
+    const dynamicFeedbackBar = document.getElementById("dynamicFeedbackBar");
+
+    function updateScoreUI() {
+        const knownCount = knownSet.size;
+        scoreDisplay.innerText = `✅ ${knownCount} / ${totalCards}`;
+        if (knownCount === totalCards && totalCards > 0) {
+            progressMessage.innerHTML = "🏆 完美！你掌握了所有汉字！ 🎉 太厉害了！ 🏆";
+        } else {
+            progressMessage.innerHTML = `📈 已掌握 ${knownCount} 个汉字 · 继续加油！ 点击卡片查看释义，标记“我知道”`;
+        }
+    }
+
+    function renderCurrentCard() {
+        if (!activeDeck.length || currentIndex >= activeDeck.length) {
+            characterDisplay.innerText = "✨";
+            detailsArea.innerHTML = `<div class="hint-area">🎉 已完成! 点击 shuffle 继续</div>`;
+            return;
+        }
+        const card = activeDeck[currentIndex];
+        characterDisplay.innerText = card.char;
+        
+        if (revealed) {
+            detailsArea.innerHTML = `
+                <div class="pinyin">${card.pinyin}</div>
+                <div class="meaning">📖 ${card.meaning}</div>
+                <div class="hint-area">✔️ 卡片已翻开 | 再次点击可隐藏</div>
+            `;
+        } else {
+            const isKnown = knownSet.has(currentIndex);
+            const statusEmoji = isKnown ? "🌟 (已掌握)" : "📘 待复习";
+            detailsArea.innerHTML = `
+                <div class="hint-area">🔒 点击显示拼音 & 释义  ${statusEmoji}</div>
+            `;
+        }
+    }
+
+    // ----- For "I know this": show PINYIN + ENGLISH together -----
+    function showFullPinyinAndEnglish() {
+        if (!activeDeck.length || currentIndex >= activeDeck.length) {
+            dynamicFeedbackBar.innerHTML = `⚠️ No cards available. Shuffle or reload.`;
+            return;
+        }
+        const card = activeDeck[currentIndex];
+        dynamicFeedbackBar.innerHTML = `✅  “${card.char}”  → 拼音: <span class="pinyin-highlight">${card.pinyin}</span>  &nbsp;  📖 英文: <span class="eng-highlight">${card.meaning}</span>`;
+        dynamicFeedbackBar.style.transform = "scale(1.01)";
+        setTimeout(() => { dynamicFeedbackBar.style.transform = "scale(1)"; }, 200);
+    }
+
+    // ----- FIXED: For "Need review" : show ONLY English translation (NO pinyin) -----
+    function showEnglishOnlyForReview() {
+        if (!activeDeck.length || currentIndex >= activeDeck.length) return;
+        const card = activeDeck[currentIndex];
+        // Display only the English meaning, no pinyin at all
+        dynamicFeedbackBar.innerHTML = `🔄 复习提醒 ·  “${card.char}” 的意思: <span class="eng-highlight">${card.meaning}</span>`;
+        dynamicFeedbackBar.style.transform = "scale(1.01)";
+        setTimeout(() => { dynamicFeedbackBar.style.transform = "scale(1)"; }, 200);
+    }
+
+    function resetFeedbackBarToNeutral() {
+        dynamicFeedbackBar.innerHTML = `💡 Click "I know this" → see pinyin + English meaning.<br>🔄 Click "Need review" → English definition only.`;
+    }
+
+    function toggleReveal() {
+        if (!activeDeck.length) return;
+        revealed = !revealed;
+        renderCurrentCard();
+    }
+
+    function nextCharacter() {
+        if (activeDeck.length === 0) rebuildDeck();
+        if (activeDeck.length > 0) {
+            currentIndex = (currentIndex + 1) % activeDeck.length;
+            revealed = false;
+            renderCurrentCard();
+            resetFeedbackBarToNeutral();
+        }
+    }
+
+    // MARK KNOWN: shows pinyin + English translation together
+    function markKnown() {
+        if (!activeDeck.length) return;
+        const card = activeDeck[currentIndex];
+        if (!knownSet.has(currentIndex)) {
+            knownSet.add(currentIndex);
+            updateScoreUI();
+            showFullPinyinAndEnglish();   // shows pinyin + english translation
+            progressMessage.innerHTML = `👍 太棒了！“${card.char}” (${card.pinyin}) - ${card.meaning} 已标记为掌握！ +1`;
+            setTimeout(() => {
+                if (knownSet.size === totalCards) updateScoreUI();
+                else progressMessage.innerHTML = `📈 已掌握 ${knownSet.size} / ${totalCards} · 继续学习~`;
+            }, 1500);
+            if (!revealed) renderCurrentCard();
+            else renderCurrentCard();
+        } else {
+            // Already known: still show pinyin + english as requested
+            showFullPinyinAndEnglish();
+            progressMessage.innerHTML = `ℹ️ 你已经掌握 “${card.char}” (${card.pinyin}) 含义: ${card.meaning}。继续巩固！`;
+            setTimeout(() => {
+                if (knownSet.size !== totalCards) 
+                    progressMessage.innerHTML = `📈 已掌握 ${knownSet.size} / ${totalCards} · 继续学习~`;
+                else updateScoreUI();
+            }, 1200);
+        }
+    }
+
+    // NEED REVIEW: displays ONLY English translation (NO pinyin)
+    function markUnknown() {
+        if (!activeDeck.length) return;
+        const card = activeDeck[currentIndex];
+        if (knownSet.has(currentIndex)) {
+            knownSet.delete(currentIndex);
+            updateScoreUI();
+            showEnglishOnlyForReview();   // only English meaning, no pinyin
+            progressMessage.innerHTML = `🔄 “${card.char}” 移出掌握列表，英文释义: ${card.meaning}。继续复习。`;
+            setTimeout(() => {
+                progressMessage.innerHTML = `📈 已掌握 ${knownSet.size} / ${totalCards} · 坚持复习~`;
+                setTimeout(() => {
+                    if (dynamicFeedbackBar.innerHTML.includes("复习提醒")) {
+                        resetFeedbackBarToNeutral();
+                    }
+                }, 3000);
+            }, 1200);
+            if (!revealed) renderCurrentCard();
+            else renderCurrentCard();
+        } else {
+            // Not known yet: show only English translation to help learning (no pinyin)
+            showEnglishOnlyForReview();
+            progressMessage.innerHTML = `✏️ 需要复习: “${card.char}” 的意思: ${card.meaning}。多练习就会记住！`;
+            setTimeout(() => {
+                if (knownSet.size !== totalCards) 
+                    progressMessage.innerHTML = `📈 已掌握 ${knownSet.size} / ${totalCards}`;
+                else updateScoreUI();
+                // keep feedback for a while then reset
+                setTimeout(() => {
+                    if (dynamicFeedbackBar.innerHTML.includes("复习提醒") || dynamicFeedbackBar.innerHTML.includes("需要复习")) {
+                        resetFeedbackBarToNeutral();
+                    }
+                }, 3800);
+            }, 1500);
+        }
+    }
+
+    function shuffleDeckPreserveProgress() {
+        if (activeDeck.length === 0) rebuildDeck();
+        const knownCharsSet = new Set();
+        for (let idx of knownSet) {
+            if (activeDeck[idx]) {
+                const card = activeDeck[idx];
+                const key = `${card.char}|${card.pinyin}|${card.meaning}`;
+                knownCharsSet.add(key);
+            }
+        }
+        for (let i = activeDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+        }
+        const newKnownSet = new Set();
+        for (let i = 0; i < activeDeck.length; i++) {
+            const card = activeDeck[i];
+            const key = `${card.char}|${card.pinyin}|${card.meaning}`;
+            if (knownCharsSet.has(key)) newKnownSet.add(i);
+        }
+        knownSet.clear();
+        knownSet = newKnownSet;
+        totalCards = activeDeck.length;
+        currentIndex = 0;
+        revealed = false;
+        updateScoreUI();
+        renderCurrentCard();
+        resetFeedbackBarToNeutral();
+        progressMessage.innerHTML = `🎲 卡片顺序已打乱！掌握进度已保留 (${knownSet.size}/${totalCards})`;
+        setTimeout(() => {
+            if (knownSet.size !== totalCards)
+                progressMessage.innerHTML = `📈 已掌握 ${knownSet.size} / ${totalCards} · 继续学习~`;
+            else updateScoreUI();
+        }, 1800);
+    }
+
+    function rebuildDeck() {
+        activeDeck = [...hskDatabase];
+        if (knownSet.size > 0 && activeDeck.length === totalCards) {
+            // keep if lengths match but to avoid index mismatch we re-evaluate knownSet based on char? but default ok.
+        } else {
+            knownSet.clear();
+        }
+        totalCards = activeDeck.length;
+        currentIndex = 0;
+        revealed = false;
+        updateScoreUI();
+        renderCurrentCard();
+        resetFeedbackBarToNeutral();
+    }
+
+    flashcardDiv.addEventListener("click", toggleReveal);
+    nextBtn.addEventListener("click", nextCharacter);
+    knownBtn.addEventListener("click", markKnown);
+    unknownBtn.addEventListener("click", markUnknown);
+    shuffleBtn.addEventListener("click", shuffleDeckPreserveProgress);
+
+    function initGame() {
+        for (let i = activeDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+        }
+        totalCards = activeDeck.length;
+        knownSet.clear();
+        currentIndex = 0;
+        revealed = false;
+        updateScoreUI();
+        renderCurrentCard();
+        resetFeedbackBarToNeutral();
+        progressMessage.innerHTML = "🎉 欢迎！点击「我知道」显示拼音+英文释义。点击「需要复习」只显示英文翻译。";
+    }
+    initGame();
+</script>
+</body>
+</html>
